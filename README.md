@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Library Management System - Educational Version
 
 ระบบจัดการห้องสมุดแบบง่ายๆ สำหรับการเรียนการสอนวิชา Software Testing and Evaluation
