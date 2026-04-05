@@ -213,8 +213,7 @@ $result = mysqli_query($conn, $sql);
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Publication Year</label>
-                            <!-- BUG 14: No validation for future years -->
-                            <input type="number" class="form-control" name="publication_year">
+                            <input type="number" class="form-control" name="publication_year" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Category</label>
