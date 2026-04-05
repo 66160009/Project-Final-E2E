@@ -30,25 +30,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $available_copies = $total_copies;
     }
 
-    $sql = "UPDATE books SET isbn='$isbn', title='$title', author='$author', publisher='$publisher', publication_year=$publication_year, category='$category', total_copies=$total_copies, available_copies=$available_copies, shelf_location='$shelf_location' WHERE book_id=$book_id";
+    $duplicate_check = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM books WHERE isbn = '$isbn' AND book_id != $book_id");
+    if ($duplicate_check) {
+        $row = mysqli_fetch_assoc($duplicate_check);
+        if ($row['cnt'] > 0) {
+            $error = 'ISBN นี้ถูกใช้งานแล้ว กรุณาใส่ ISBN ใหม่';
+        }
+    }
 
-    if (mysqli_query($conn, $sql)) {
+    if (empty($error)) {
+        $sql = "UPDATE books SET isbn='$isbn', title='$title', author='$author', publisher='$publisher', publication_year=$publication_year, category='$category', total_copies=$total_copies, available_copies=$available_copies, shelf_location='$shelf_location', updated_at = NOW() WHERE book_id=$book_id";
+
+        if (mysqli_query($conn, $sql)) {
+            header('Location: books.php');
+            exit();
+        } else {
+            $error = 'Unable to update book. Please try again.';
+        }
+    }
+
+    $book = [
+        'book_id' => $book_id,
+        'isbn' => $isbn,
+        'title' => $title,
+        'author' => $author,
+        'publisher' => $publisher,
+        'publication_year' => $publication_year,
+        'category' => $category,
+        'total_copies' => $total_copies,
+        'available_copies' => $available_copies,
+        'shelf_location' => $shelf_location,
+    ];
+}
+
+if (!isset($book)) {
+    $sql = "SELECT * FROM books WHERE book_id = $book_id";
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result || mysqli_num_rows($result) === 0) {
         header('Location: books.php');
         exit();
-    } else {
-        $error = 'Unable to update book. Please try again.';
     }
+
+    $book = mysqli_fetch_assoc($result);
 }
-
-$sql = "SELECT * FROM books WHERE book_id = $book_id";
-$result = mysqli_query($conn, $sql);
-
-if (!$result || mysqli_num_rows($result) === 0) {
-    header('Location: books.php');
-    exit();
-}
-
-$book = mysqli_fetch_assoc($result);
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -108,7 +133,7 @@ $book = mysqli_fetch_assoc($result);
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">ISBN</label>
-                            <input type="text" class="form-control" name="isbn" value="<?php echo htmlspecialchars($book['isbn']); ?>" required>
+                            <input type="text" class="form-control" name="isbn" value="<?php echo htmlspecialchars(formatIsbnInput($book['isbn'])); ?>" required maxlength="17" pattern="[0-9\-]{1,17}" title="กรอกเลข ISBN 13 หลัก พร้อมขีด">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Title</label>
@@ -156,3 +181,12 @@ $book = mysqli_fetch_assoc($result);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+
+<?php
+function formatIsbnInput($isbn) {
+    $digits = preg_replace('/\D/', '', $isbn);
+    if (strlen($digits) !== 13) return $isbn;
+    return substr($digits,0,3).'-'.substr($digits,3,3).'-'.substr($digits,6,3).'-'.substr($digits,9,3).'-'.substr($digits,12,1);
+}
+?>
