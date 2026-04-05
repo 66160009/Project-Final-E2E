@@ -8,6 +8,49 @@ if (!isset($_SESSION['user_id'])) {
 
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 
+function isbnIncrement($digits) {
+    $carry = 1;
+    $result = '';
+
+    for ($i = strlen($digits) - 1; $i >= 0; $i--) {
+        $digit = intval($digits[$i]);
+        $sum = $digit + $carry;
+        $result = ($sum % 10) . $result;
+        $carry = $sum >= 10 ? 1 : 0;
+    }
+
+    return $carry ? '1' . $result : $result;
+}
+
+function formatIsbn($isbn) {
+    $digits = preg_replace('/\D/', '', $isbn);
+    if (strlen($digits) !== 13) {
+        return $isbn;
+    }
+    // Format: XXX-X-XXX-XXX-X
+    return substr($digits, 0, 3) . '-' . substr($digits, 3, 1) . '-' . substr($digits, 4, 3) . '-' . substr($digits, 7, 3) . '-' . substr($digits, 10, 3);
+}
+
+$next_isbn = '9786160000000';
+$isbn_result = mysqli_query($conn, "SELECT isbn FROM books");
+if ($isbn_result) {
+    $max_isbn = '';
+    while ($row = mysqli_fetch_assoc($isbn_result)) {
+        $digits = preg_replace('/\D/', '', $row['isbn']);
+        if (strlen($digits) === 13 && ctype_digit($digits)) {
+            if ($max_isbn === '' || strcmp($digits, $max_isbn) === 1) {
+                $max_isbn = $digits;
+            }
+        }
+    }
+    if ($max_isbn !== '') {
+        $next_isbn = isbnIncrement($max_isbn);
+        if (strlen($next_isbn) < 13) {
+            $next_isbn = str_pad($next_isbn, 13, '0', STR_PAD_LEFT);
+        }
+    }
+}
+
 // BUG 12: SQL Injection in search - No sanitization
 if ($search) {
     $sql = "SELECT * FROM books WHERE title LIKE '%$search%' OR author LIKE '%$search%' OR isbn LIKE '%$search%'";
@@ -153,7 +196,8 @@ $result = mysqli_query($conn, $sql);
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">ISBN</label>
-                            <input type="text" class="form-control" name="isbn" required>
+                            <input type="text" class="form-control" name="isbn" value="<?php echo htmlspecialchars(formatIsbn($next_isbn)); ?>" readonly required>
+                            <div class="form-text">ISBN ถูกกำหนดให้เป็นเลข 13 หลักถัดจากรายการล่าสุดโดยอัตโนมัติ</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Title</label>
