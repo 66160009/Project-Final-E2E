@@ -90,7 +90,17 @@ $result = mysqli_query($conn, $sql);
                                 <td><?php echo htmlspecialchars($member['member_code']); ?></td>
                                 <td><?php echo htmlspecialchars($member['full_name']); ?></td>
                                 <td><?php echo htmlspecialchars($member['email']); ?></td>
-                                <td><?php echo htmlspecialchars($member['phone']); ?></td>
+                                <td>
+                                <?php
+                                    // Format phone for display: 081-234-5678
+                                    $phone = preg_replace('/\D/', '', $member['phone']);
+                                    if (strlen($phone) === 10) {
+                                        echo htmlspecialchars(substr($phone,0,3) . '-' . substr($phone,3,3) . '-' . substr($phone,6));
+                                    } else {
+                                        echo htmlspecialchars($member['phone']);
+                                    }
+                                ?>
+                                </td>
                                 <td>
                                     <span class="badge bg-info">
                                         <?php echo ucfirst($member['member_type']); ?>
@@ -142,7 +152,7 @@ $result = mysqli_query($conn, $sql);
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Phone</label>
-                            <input type="text" class="form-control" name="phone">
+                            <input type="text" class="form-control" name="phone" id="phoneInput" maxlength="12" pattern="[0-9\-]{12}" placeholder="081-234-5678">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Member Type</label>
@@ -163,5 +173,29 @@ $result = mysqli_query($conn, $sql);
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Auto-format phone number as 081-234-5678
+    document.addEventListener('DOMContentLoaded', function() {
+        var addMemberModal = document.getElementById('addMemberModal');
+        if (addMemberModal) {
+            addMemberModal.addEventListener('shown.bs.modal', function () {
+                var phoneInput = document.getElementById('phoneInput');
+                if (phoneInput) {
+                    phoneInput.addEventListener('input', function(e) {
+                        let value = phoneInput.value.replace(/\D/g, '');
+                        if (value.length > 10) value = value.slice(0, 10);
+                        let formatted = value;
+                        if (value.length > 3 && value.length <= 6) {
+                            formatted = value.slice(0,3) + '-' + value.slice(3);
+                        } else if (value.length > 6) {
+                            formatted = value.slice(0,3) + '-' + value.slice(3,6) + '-' + value.slice(6);
+                        }
+                        phoneInput.value = formatted;
+                    });
+                }
+            });
+        }
+    });
+    </script>
 </body>
 </html>
