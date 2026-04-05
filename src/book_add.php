@@ -53,6 +53,15 @@ function getNextIsbn($conn) {
     return $next;
 }
 
+function generateShelfLocation() {
+    $letters = ['A', 'B', 'C'];
+    $firstLetter = $letters[array_rand($letters)];
+    $secondDigit = rand(1, 4);
+    $thirdDigit = 0;
+    $fourthDigit = rand(0, 9);
+    return sprintf('%s-%d%d%d', $firstLetter, $secondDigit, $thirdDigit, $fourthDigit);
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $isbn = getNextIsbn($conn);
     $title = mysqli_real_escape_string($conn, $_POST['title']);
@@ -61,7 +70,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $publication_year = intval($_POST['publication_year']);
     $category = mysqli_real_escape_string($conn, $_POST['category']);
     $total_copies = max(0, intval($_POST['total_copies']));
-    $shelf_location = mysqli_real_escape_string($conn, $_POST['shelf_location']);
+    $shelf_location = trim($_POST['shelf_location']);
+    if ($shelf_location === '') {
+        $shelf_location = generateShelfLocation();
+    }
+    $shelf_location = mysqli_real_escape_string($conn, $shelf_location);
     
     $sql = "INSERT INTO books (isbn, title, author, publisher, publication_year, category, total_copies, available_copies, shelf_location) 
             VALUES ('$isbn', '$title', '$author', '$publisher', $publication_year, '$category', $total_copies, $total_copies, '$shelf_location')";

@@ -31,7 +31,17 @@ function formatIsbn($isbn) {
     return substr($digits, 0, 3) . '-' . substr($digits, 3, 1) . '-' . substr($digits, 4, 3) . '-' . substr($digits, 7, 3) . '-' . substr($digits, 10, 3);
 }
 
+function generateShelfLocation() {
+    $letters = ['A', 'B', 'C'];
+    $firstLetter = $letters[array_rand($letters)];
+    $secondDigit = rand(1, 4);
+    $thirdDigit = 0;
+    $fourthDigit = rand(0, 9);
+    return sprintf('%s-%d%d%d', $firstLetter, $secondDigit, $thirdDigit, $fourthDigit);
+}
+
 $next_isbn = '9786160000000';
+$shelf_location_default = generateShelfLocation();
 $isbn_result = mysqli_query($conn, "SELECT isbn FROM books");
 if ($isbn_result) {
     $max_isbn = '';
@@ -226,7 +236,7 @@ $result = mysqli_query($conn, $sql);
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Shelf Location</label>
-                            <input type="text" class="form-control" name="shelf_location">
+                            <input type="text" class="form-control" name="shelf_location" value="<?php echo htmlspecialchars($shelf_location_default); ?>" required>
                         </div>
                     </div>
                     <div class="modal-footer">
