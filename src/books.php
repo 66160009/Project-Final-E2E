@@ -63,9 +63,9 @@ if ($isbn_result) {
 
 // BUG 12: SQL Injection in search - No sanitization
 if ($search) {
-    $sql = "SELECT * FROM books WHERE title LIKE '%$search%' OR author LIKE '%$search%' OR isbn LIKE '%$search%'";
+    $sql = "SELECT * FROM books WHERE title LIKE '%$search%' OR author LIKE '%$search%' OR isbn LIKE '%$search%' ORDER BY created_at DESC";
 } else {
-    $sql = "SELECT * FROM books ORDER BY title";
+    $sql = "SELECT * FROM books ORDER BY created_at DESC";
 }
 
 $result = mysqli_query($conn, $sql);
