@@ -14,8 +14,11 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-// BUG 3: No character set specified - can cause encoding issues
-// Should use: mysqli_set_charset($conn, "utf8mb4");
+// Use UTF-8 for the database connection to avoid Thai text corruption
+mysqli_set_charset($conn, "utf8mb4");
+
+// Send correct HTTP charset header
+header('Content-Type: text/html; charset=UTF-8');
 
 // Session configuration
 session_start();
