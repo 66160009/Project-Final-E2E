@@ -53,13 +53,35 @@ function getNextIsbn($conn) {
     return $next;
 }
 
-function generateShelfLocation() {
-    $letters = ['A', 'B', 'C'];
-    $firstLetter = $letters[array_rand($letters)];
-    $secondDigit = rand(1, 4);
-    $thirdDigit = 0;
-    $fourthDigit = rand(0, 9);
-    return sprintf('%s-%d%d%d', $firstLetter, $secondDigit, $thirdDigit, $fourthDigit);
+
+// Map category to prefix
+function getCategoryPrefix($category) {
+    $map = [
+        'Computer' => 'A',
+        'History' => 'D',
+        'Economics' => 'C',
+        'Fiction' => 'B',
+    ];
+    return isset($map[$category]) ? $map[$category] : 'A';
+}
+
+// Generate next shelf location for a given category
+function getNextShelfLocation($conn, $category) {
+    $prefix = getCategoryPrefix($category);
+    $sql = "SELECT shelf_location FROM books WHERE shelf_location LIKE '" . $prefix . "-%' ORDER BY shelf_location DESC LIMIT 1";
+    $result = mysqli_query($conn, $sql);
+    $max_num = 0;
+    if ($result && $row = mysqli_fetch_assoc($result)) {
+        // Expecting format: X-YYY
+        $parts = explode('-', $row['shelf_location']);
+        if (count($parts) == 2 && is_numeric($parts[1])) {
+            $max_num = intval($parts[1]);
+        }
+    }
+    $next_num = $max_num + 1;
+    // Pad to 3 digits for consistency
+    $next_code = sprintf('%s-%03d', $prefix, $next_num);
+    return $next_code;
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -70,10 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $publication_year = intval($_POST['publication_year']);
     $category = mysqli_real_escape_string($conn, $_POST['category']);
     $total_copies = max(0, intval($_POST['total_copies']));
-    $shelf_location = trim($_POST['shelf_location']);
-    if ($shelf_location === '') {
-        $shelf_location = generateShelfLocation();
-    }
+    // Always generate shelf location server-side for consistency
+    $shelf_location = getNextShelfLocation($conn, $category);
     $shelf_location = mysqli_real_escape_string($conn, $shelf_location);
     
     $sql = "INSERT INTO books (isbn, title, author, publisher, publication_year, category, total_copies, available_copies, shelf_location) 

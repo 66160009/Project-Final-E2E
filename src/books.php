@@ -241,7 +241,8 @@ $result = mysqli_query($conn, $sql);
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Shelf Location</label>
-                            <input type="text" class="form-control" name="shelf_location" value="<?php echo htmlspecialchars($shelf_location_default); ?>" required>
+                            <input type="text" class="form-control" id="shelf_location" name="shelf_location" value="(Will be auto-generated)" disabled>
+                            <div class="form-text">Shelf Location will be assigned automatically based on Category.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -259,10 +260,11 @@ $result = mysqli_query($conn, $sql);
         function viewBook(id) {
             window.location.href = 'book_view.php?id=' + id;
         }
-        
         function editBook(id) {
             window.location.href = 'book_edit.php?id=' + id;
         }
+
+        // Shelf Location is now auto-generated server-side. No client-side logic needed.
     </script>
 </body>
 </html>
