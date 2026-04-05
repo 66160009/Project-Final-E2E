@@ -149,7 +149,7 @@ if (!isset($book)) {
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Publication Year</label>
-                            <input type="number" class="form-control" name="publication_year" value="<?php echo htmlspecialchars($book['publication_year']); ?>">
+                            <input type="number" class="form-control" name="publication_year" min="0" value="<?php echo htmlspecialchars($book['publication_year']); ?>">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Category</label>
