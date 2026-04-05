@@ -4,28 +4,27 @@ require_once 'config.php';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $password = $_POST['password'];
-    
-    // BUG 5: SQL Injection vulnerability - No input sanitization (partially fixed)
-    $sql = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
-    
+    $username = trim(mysqli_real_escape_string($conn, $_POST['username']));
+    $password = trim($_POST['password']);
+
+    // Try to fetch user by username only first
+    $sql = "SELECT * FROM users WHERE username = '$username'";
     $result = mysqli_query($conn, $sql);
-    
-    // BUG 6: Logic error - should check mysqli_num_rows > 0 (FIXED)
     if ($result && mysqli_num_rows($result) > 0) {
         $user = mysqli_fetch_assoc($result);
-        
-        // BUG 7: Missing verification if user exists (FIXED)
-        $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['full_name'] = $user['full_name'];
-        
-        header('Location: index.php');
-        exit();
+        // Compare password exactly (case-sensitive, trimmed)
+        if ($user['password'] === $password) {
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['full_name'] = $user['full_name'];
+            header('Location: index.php');
+            exit();
+        } else {
+            $error = 'รหัสผ่านผิด โปรดลองอีกครั้ง';
+        }
     } else {
-        $error = 'รหัสผ่านผิด โปรดลองอีกครั้ง';
+        $error = 'ไม่พบผู้ใช้งานนี้';
     }
 }
 ?>
