@@ -7,29 +7,42 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $member_code = $_POST['member_code'];
-    $full_name = $_POST['full_name'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    $member_type = $_POST['member_type'];
+    $member_code = mysqli_real_escape_string($conn, $_POST['member_code']);
+    $full_name = mysqli_real_escape_string($conn, $_POST['full_name']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+    $member_type = mysqli_real_escape_string($conn, $_POST['member_type']);
     $registration_date = date('Y-m-d');
-    
-    // BUG 32: No duplicate member code check
+
+    // Check for duplicate member_code
+    $dup_check = mysqli_query($conn, "SELECT member_id FROM members WHERE member_code = '$member_code'");
+    if ($dup_check && mysqli_num_rows($dup_check) > 0) {
+        // Show error message and stop
+        echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>Error</title>';
+        echo '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">';
+        echo '</head><body class="bg-light">';
+        echo '<div class="container mt-5"><div class="alert alert-danger">';
+        echo 'Error: Member Code <b>' . htmlspecialchars($member_code) . '</b> already exists. <a href="members.php" class="alert-link">Go back</a>';
+        echo '</div></div></body></html>';
+        exit();
+    }
+
     // Set max_books based on member type
-    // BUG 33: Logic error - wrong max_books for teacher
     $max_books = 3;
     if ($member_type == 'teacher') {
-        $max_books = 3; // Should be 5!
+        $max_books = 5;
     } elseif ($member_type == 'public') {
         $max_books = 2;
     }
-    
-    // BUG 34: SQL Injection vulnerability
+
     $sql = "INSERT INTO members (member_code, full_name, email, phone, member_type, registration_date, max_books) 
             VALUES ('$member_code', '$full_name', '$email', '$phone', '$member_type', '$registration_date', $max_books)";
-    
-    mysqli_query($conn, $sql);
-    
+
+    if (!mysqli_query($conn, $sql)) {
+        echo '<div class="alert alert-danger">Error adding member: ' . htmlspecialchars(mysqli_error($conn)) . '</div>';
+        exit();
+    }
+
     header('Location: members.php');
     exit();
 }
