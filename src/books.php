@@ -209,7 +209,7 @@ $result = mysqli_query($conn, $sql);
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Publisher</label>
-                            <input type="text" class="form-control" name="publisher">
+                            <input type="text" class="form-control" name="publisher" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Publication Year</label>
