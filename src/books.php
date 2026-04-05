@@ -227,7 +227,12 @@ $result = mysqli_query($conn, $sql);
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Category</label>
-                            <input type="text" class="form-control" name="category">
+                            <select class="form-control" name="category" required>
+                                <option value="Computer">Computer</option>
+                                <option value="History">History</option>
+                                <option value="Economics">Economics</option>
+                                <option value="Fiction">Fiction</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Total Copies</label>
