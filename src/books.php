@@ -213,7 +213,7 @@ $result = mysqli_query($conn, $sql);
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Publication Year</label>
-                            <input type="number" class="form-control" name="publication_year" required>
+                            <input type="number" class="form-control" name="publication_year" min="0" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Category</label>
@@ -222,7 +222,7 @@ $result = mysqli_query($conn, $sql);
                         <div class="mb-3">
                             <label class="form-label">Total Copies</label>
                             <!-- BUG 15: No minimum value validation (can be negative) -->
-                            <input type="number" class="form-control" name="total_copies" value="1">
+                            <input type="number" class="form-control" name="total_copies" value="1" min="0" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Shelf Location</label>
