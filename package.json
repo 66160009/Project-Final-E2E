@@ -1,0 +1,28 @@
+{
+  "name": "library-management-all-bugs",
+  "version": "1.0.0",
+  "description": "Library Management System end-to-end tests",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "playwright:codegen": "playwright codegen http://localhost:8080"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/66160009/Project-Final-E2E.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/66160009/Project-Final-E2E/issues"
+  },
+  "homepage": "https://github.com/66160009/Project-Final-E2E#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}

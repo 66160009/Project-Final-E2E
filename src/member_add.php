@@ -1,3 +1,17 @@
+    // Check for duplicate phone
+    $dup_phone = mysqli_query($conn, "SELECT member_id FROM members WHERE phone = '$phone'");
+    if ($dup_phone && mysqli_num_rows($dup_phone) > 0) {
+        echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>Error</title>';
+        echo '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">';
+        echo '</head><body class="bg-light">';
+        echo '<div class="container mt-5"><div class="alert alert-danger">';
+        echo 'เบอร์โทรศัพท์ <b>' . htmlspecialchars($phone) . '</b> นี้ถูกใช้ไปแล้ว กรุณาใช้เบอร์อื่น';
+        echo '</div>';
+        echo '<div class="text-center mt-3">';
+        echo '<a href="members.php" class="btn btn-primary">กลับไปกรอกใหม่</a>';
+        echo '</div></div></body></html>';
+        exit();
+    }
 <?php
 require_once 'config.php';
 
